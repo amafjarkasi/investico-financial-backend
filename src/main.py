@@ -40,8 +40,8 @@ def all_users():
     return jsonify(all_users), 200
 
 #Register endpoint
-@app.route('/register', methods=['POST'])
-def register():
+@app.route('/signup', methods=['POST'])
+def signup():
     request_body_user = request.get_json()
     newuser = User(full_name=request_body_user["full_name"], email=request_body_user["email"], password=request_body_user["password"])
     db.session.add(newuser)
