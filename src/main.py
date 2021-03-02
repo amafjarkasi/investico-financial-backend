@@ -30,6 +30,7 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
+#Get all users endpoint
 @app.route('/user', methods=['GET'])
 def all_users():
 
@@ -38,28 +39,19 @@ def all_users():
 
     return jsonify(all_users), 200
 
-#Register Endpoint
+#Register endpoint
 @app.route('/register', methods=['POST'])
 def register():
-
     request_body_user = request.get_json()
-
-    newuser = User(full_name=request_body_user["full_name"], email=request_body_user["email"], address=request_body_user["address"],
-    city=request_body_user["city"], state=request_body_user["state"],
-    zip=request_body_user["zip"], username=request_body_user["username"], password=request_body_user["password"])
+    newuser = User(full_name=request_body_user["full_name"], email=request_body_user["email"], password=request_body_user["password"])
     db.session.add(newuser)
     db.session.commit()
 
     return jsonify(request_body_user), 200  
 
 
-# @app.route('/user', methods=['GET'])
-# def handle_hello():
 
-#     response_body = {
-#         "msg": "Hello, this is your GET /user response "
-#     }
-#     return jsonify(response_body), 200
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
