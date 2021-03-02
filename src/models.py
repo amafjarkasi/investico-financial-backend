@@ -19,3 +19,23 @@ class User(db.Model):
             "email": self.email,
             # do not serialize the password, its a security breach
         }
+        
+class Portfolio(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    # address = db.Column(db.String(80), unique=False, nullable=False)
+    # weight = db.Column(db.Float, unique=False, nullable=False)
+    # payment_id = db.Column(db.String(80), unique=True, nullable=False)
+    # # tracking_id= db.Column(db.Integer, unique=True, nullable=False)
+    
+
+    # #relationships
+    # puzzle_id = db.Column(db.Integer, db.ForeignKey('puzzle.id'))
+    # user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+
+    def __repr__(self):
+        return '<Order %r>' % self.id
+
+    def serialize(self):
+        return {
+            "id": self.id
+        }
