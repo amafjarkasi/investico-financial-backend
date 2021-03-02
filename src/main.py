@@ -38,6 +38,21 @@ def all_users():
 
     return jsonify(all_users), 200
 
+#Register Endpoint
+@app.route('/register', methods=['POST'])
+def register():
+
+    request_body_user = request.get_json()
+
+    newuser = User(full_name=request_body_user["full_name"], email=request_body_user["email"], address=request_body_user["address"],
+    city=request_body_user["city"], state=request_body_user["state"],
+    zip=request_body_user["zip"], username=request_body_user["username"], password=request_body_user["password"])
+    db.session.add(newuser)
+    db.session.commit()
+
+    return jsonify(request_body_user), 200  
+
+
 # @app.route('/user', methods=['GET'])
 # def handle_hello():
 
