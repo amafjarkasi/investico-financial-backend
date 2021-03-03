@@ -49,6 +49,27 @@ def signup():
 
     return jsonify(request_body_user), 200  
 
+#Login Endpoint
+@app.route('/login', methods=['POST'])
+def login():
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    params = request.get_json()
+    username = params.get('username', None)
+    password = params.get('password', None)
+
+    if not username:
+        return jsonify({"msg": "Missing username parameter"}), 400
+    if not password:
+        return jsonify({"msg": "Missing password parameter"}), 400
+
+    userquery = User.query.filter_by(username = username).first()
+    if userquery is None:
+        return jsonify({"msg": "user not found"}), 401
+    if userquery.validate_password(password) is False:
+        return jsonify({"msg": "invalid password"}), 401
+
 
 
 # this only runs if `$ python src/main.py` is executed
