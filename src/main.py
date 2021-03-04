@@ -8,7 +8,11 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Portfolio
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token, current_user, get_jwt_identity
+)
+
 #from models import Person
 
 app = Flask(__name__)
@@ -39,11 +43,22 @@ def all_users():
 
     return jsonify(all_users), 200
 
+@app.route('/user/<int:user_id>', methods=['GET'])
+def get_address(user_id):
+
+    user1 = User.query.get(user_id)
+    if user1 is None:
+        raise APIException('User not found', status_code=404)
+
+
 #Register endpoint
 @app.route('/signup', methods=['POST'])
 def signup():
+
     request_body_user = request.get_json()
-    newuser = User(full_name=request_body_user["full_name"], email=request_body_user["email"], password=request_body_user["password"])
+
+    newuser = User(full_name=request_body_user["full_name"],
+    email=request_body_user["email"], password=request_body_user["password"])
     db.session.add(newuser)
     db.session.commit()
 
