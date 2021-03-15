@@ -24,6 +24,8 @@ db.init_app(app)
 CORS(app)
 setup_admin(app)
 
+app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+jwt = JWTManager(app)
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
@@ -62,7 +64,7 @@ def signup():
     db.session.add(newuser)
     db.session.commit()
 
-    return jsonify(request_body_user), 200  
+    return "done", 200  
 
 #Login Endpoint
 @app.route('/login', methods=['POST'])
@@ -71,21 +73,65 @@ def login():
         return jsonify({"msg": "Missing JSON in request"}), 400
 
     params = request.get_json()
-    username = params.get('username', None)
+    email = params.get('email', None)
     password = params.get('password', None)
 
-    if not username:
-        return jsonify({"msg": "Missing username parameter"}), 400
+    if not email:
+        return jsonify({"msg": "Missing email parameter"}), 400
     if not password:
         return jsonify({"msg": "Missing password parameter"}), 400
 
-    userquery = User.query.filter_by(username = username).first()
+    userquery = User.query.filter_by(email = email).first()
     if userquery is None:
         return jsonify({"msg": "user not found"}), 401
     if userquery.validate_password(password) is False:
         return jsonify({"msg": "invalid password"}), 401
 
+     # Identity can be any data that is json serializable
+    ret = {'jwt': create_access_token(identity=email), 'user': userquery.serialize()}
+    return jsonify(ret), 200  
 
+#portfolio questions
+@app.route('/portfolio', methods=['GET'])
+def all_portfolio():
+
+    portfolio = Portfolio.query.all()
+    all_portfolio = list(map(lambda x: x.serialize(), portfolio))
+
+    return jsonify(all_portfolio), 200
+
+# Get fields from Form Data
+    
+    
+# @app.route('/portfolio', methods=['POST'])
+# def portfolio():
+#     if not request.is_json:
+#         return jsonify({"msg": "Missing JSON in request"}), 400
+
+#     body=request.get_json()
+    # question_1 = request.get_json()["question_1"] 
+    # question_2 = request.get_json()["question_2"] 
+    # question_3 = request.get_json()["question_3"]
+    # question_4 = request.get_json()["question_4"]
+    # question_5 = request.get_json()["question_4"]
+
+    # if not question_1:
+    #     return jsonify({"msg": "Missing email parameter"}), 400
+    # if not question_2:
+    #     return jsonify({"msg": "Missing password parameter"}), 400
+    # if not question_3:
+    #     return jsonify({"msg": "Missing password parameter"}), 400
+
+    # newportfolio = Portfolio(question_1=body["question_1"])
+    # newportfolio = Portfolio(question_1=question_1,
+    # question_2=question_2, question_3=question_3, question_4=question_4, question_5=question_5)
+   
+    # db.session.add(newportfolio)
+    # db.session.commit()
+
+     # Identity can be any data that is json serializable
+  
+    # return jsonify("done"), 200  
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
