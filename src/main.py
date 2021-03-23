@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Portfolio
+from models import db, User, Portfolio, Transaction
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token, current_user, get_jwt_identity
 )
@@ -110,6 +110,41 @@ def portfolio():
     db.session.add(newportfolio)
     db.session.commit()
     return "done", 200  
+
+
+
+@app.route('/buy', methods=['POST', 'GET'])
+def buy():
+
+"""
+Add new transaction 
+
+"""
+
+    # POST request
+    if request.method == 'POST':
+        body = request.get_json()
+        if body is None:
+            raise APIException("You need to specify the request body as a json object", status_code=400)
+        newbuy = Transaction(price=body['price'], quantity=body['quantity'], symbol=body['symbol'], date=body['date'],total_purchase=body['total_purchase'])
+        db.session.add(newbuy)
+        db.session.commit()
+        return "ok", 200
+
+    #GET request 
+    if request.method == 'GET':
+        newbuy = Transaction.query.all()
+        newbuy = list(map(lambda x: x.serialize(), newbuy))
+        return jsonify(newbuy), 200
+    return "Invalid Method", 404
+
+     # Identity can be any data that is json serializable
+    ret = {'jwt': create_access_token(identity=email), 'user': userquery.serialize()}
+    return jsonify(ret), 200 
+
+
+
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':

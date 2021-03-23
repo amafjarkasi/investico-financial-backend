@@ -52,3 +52,26 @@ class Portfolio(db.Model):
             "question_4": self.question_4,
             "question_5": self.question_5,
         }
+class Transaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    price = db.Column(db.String(120), unique=False, nullable=True)
+    quantity = db.Column(db.String(120), unique=False, nullable=True)
+    symbol = db.Column(db.String(120), unique=False, nullable=True)
+    total_purchase = db.Column(db.String(120), unique=False, nullable=True)
+    date = db.Column(db.String(120), unique=False, nullable=True)
+
+    def __repr__(self):
+        return '<Transaction %r>' % self.symbol
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "price": self.price,
+            "quantity": self.quantity,
+            "symbol": self.symbol,
+            "total_purchase": self.total_purchase,
+            "date": self.date
+        }
+
+     # relationships
+    # user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
