@@ -1,10 +1,10 @@
 import os
 from flask_admin import Admin
-from models import db, User, Portfolio, Transaction
+from models import db, User, Portfolio, Transaction, Profile
 from flask_admin.contrib.sqla import ModelView
 
 class UserView(ModelView):
- def on_model_change(self, form, model, portfolio, transaction, is_created=False):
+ def on_model_change(self, form, model, portfolio, transaction, profile, is_created=False):
      pass
 
 def setup_admin(app):
@@ -17,5 +17,6 @@ def setup_admin(app):
     admin.add_view(ModelView(User, db.session))
     admin.add_view(ModelView(Portfolio, db.session))
     admin.add_view(ModelView(Transaction, db.session))
+    admin.add_view(ModelView(Profile, db.session))
     # You can duplicate that line to add mew models
     # admin.add_view(ModelView(YourModelName, db.session))
