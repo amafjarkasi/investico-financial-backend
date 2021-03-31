@@ -8,10 +8,11 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Portfolio, Transaction
+from models import db, User, Portfolio, Transaction, Profile
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token, current_user, get_jwt_identity
 )
+import datetime
 
 #from models import Person
 
@@ -69,6 +70,18 @@ def signup():
 #Login Endpoint
 @app.route('/login', methods=['POST'])
 def login():
+    credentials = request.json
+    email = credentials.get('email', None)
+    password = credentials.get('password', None)
+    user = User.query.filter_by(email=email, password=password).first()      
+    if user is None:
+        return jsonify("Invalid email or password"), 401
+
+    expires = datetime.timedelta(days=7)
+    access_token = create_access_token(identity=email, expires_delta=expires)
+    
+    return jsonify(access_token), 200
+
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
 
@@ -87,35 +100,39 @@ def login():
     if userquery.validate_password(password) is False:
         return jsonify({"msg": "invalid password"}), 401
 
-     # Identity can be any data that is json serializable
+    # Identity can be any data that is json serializable
     ret = {'jwt': create_access_token(identity=email), 'user': userquery.serialize()}
     return jsonify(ret), 200  
 
-#portfolio questions
-@app.route('/portfolio', methods=['GET'])
-def all_portfolio():
+#profile endpoint
+@app.route('/profile', methods=['POST', 'GET'])
+def profile():
 
-    portfolio = Portfolio.query.all()
-    all_portfolio = list(map(lambda x: x.serialize(), portfolio))
+    """
+    Add new profile answers 
 
-    return jsonify(all_portfolio), 200
+    """
 
-# Get fields from Form Data
-    
-    
-@app.route('/portfolio', methods=['POST'])
-def portfolio():
-    body = request.get_json()
-    newportfolio = Portfolio(question_1=body['question1'], question_2=body['question2'], question_3=body['question3'], question_4=body['question4'], question_5=body['question5'])
-    db.session.add(newportfolio)
-    db.session.commit()
-    return "done", 200  
+    # POST request
+    if request.method == 'POST':
+        body = request.get_json()
+        if body is None:
+            raise APIException("You need to specify the request body as a json object", status_code=400)
+        newprofile = Profile(question1=body['question1'], question2=body['question2'], question3=body['question3'])
+        db.session.add(newprofile)
+        db.session.commit()
+        return "ok", 200
 
+    #GET request 
+    if request.method == 'GET':
+        newprofile = Profile.query.all()
+        newprofile = list(map(lambda x: x.serialize(), newprofile))
+        return jsonify(newprofile), 200
+    return "Invalid Method", 404
 
-# """
-# Add new transaction 
-
-# """
+     # Identity can be any data that is json serializable
+    ret = {'jwt': create_access_token(identity=email), 'user': userquery.serialize()}
+    return jsonify(ret), 200 
 
 @app.route('/buy', methods=['POST', 'GET'])
 def buy():
@@ -123,6 +140,7 @@ def buy():
     # POST request
     if request.method == 'POST':
         body = request.get_json()
+        print(body)
         if body is None:
             raise APIException("You need to specify the request body as a json object", status_code=400)
         if 'price' not in body:

@@ -75,3 +75,20 @@ class Transaction(db.Model):
 
      # relationships
     # user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+
+class Profile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    question1 = db.Column(db.String(120), unique=False, nullable=True)
+    question2 = db.Column(db.String(120), unique=False, nullable=True)
+    question3 = db.Column(db.String(120), unique=False, nullable=True)
+
+    def __repr__(self):
+        return '<Profile %r>' % self.id
+
+    def serialize(self):
+        return {
+            "question1": self.question1,
+            "question2": self.question2,
+            "question3": self.question3
+
+        }
