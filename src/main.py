@@ -79,8 +79,8 @@ def login():
 
     expires = datetime.timedelta(days=7)
     access_token = create_access_token(identity=email, expires_delta=expires)
-    
-    return jsonify(access_token), 200
+    ret = {'jwt': access_token, 'user': user.serialize()}
+    return jsonify(ret), 200
 
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
@@ -128,11 +128,7 @@ def profile():
         newprofile = Profile.query.all()
         newprofile = list(map(lambda x: x.serialize(), newprofile))
         return jsonify(newprofile), 200
-    return "Invalid Method", 404
-
-     # Identity can be any data that is json serializable
-    ret = {'jwt': create_access_token(identity=email), 'user': userquery.serialize()}
-    return jsonify(ret), 200 
+    return "Invalid Method", 404 
 
 @app.route('/buy', methods=['POST', 'GET'])
 def buy():
