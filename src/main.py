@@ -112,37 +112,46 @@ def portfolio():
     return "done", 200  
 
 
+# """
+# Add new transaction 
+
+# """
 
 @app.route('/buy', methods=['POST', 'GET'])
 def buy():
-
-"""
-Add new transaction 
-
-"""
 
     # POST request
     if request.method == 'POST':
         body = request.get_json()
         if body is None:
             raise APIException("You need to specify the request body as a json object", status_code=400)
+        if 'price' not in body:
+            raise APIException("Missing price.", status_code=404)
+        if 'quantity' not in body:
+            raise APIException("Missing quantity", status_code=404)
+        if 'symbol' not in body:
+            raise APIException("Missing symbol.", status_code=404)
+        if 'date' not in body:
+            raise APIException("Missing date.", status_code=404)
+        
         newbuy = Transaction(price=body['price'], quantity=body['quantity'], symbol=body['symbol'], date=body['date'],total_purchase=body['total_purchase'])
         db.session.add(newbuy)
-        db.session.commit()
-        return "ok", 200
+        db.session.commit()      
+        response_body = newbuy.serialize()       
+        return jsonify(response_body), 200
 
     #GET request 
     if request.method == 'GET':
         newbuy = Transaction.query.all()
         newbuy = list(map(lambda x: x.serialize(), newbuy))
         return jsonify(newbuy), 200
-    return "Invalid Method", 404
 
-     # Identity can be any data that is json serializable
-    ret = {'jwt': create_access_token(identity=email), 'user': userquery.serialize()}
-    return jsonify(ret), 200 
+    return "OK!", 200
 
 
+    #  # Identity can be any data that is json serializable
+    # ret = {'jwt': create_access_token(identity=email), 'user': userquery.serialize()}
+    # return jsonify(ret), 200 
 
 
 
